@@ -1,0 +1,6 @@
+{
+	"name": "integrationRuntime-pg",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
