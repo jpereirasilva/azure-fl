@@ -1,0 +1,9 @@
+{
+	"name": "flou-datafactory",
+	"location": "westeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6f6d607b-dd5a-4628-bfb3-dc8dc544e6e5",
+		"tenantId": "dcd9e721-82cd-480a-bf8d-d918cac6e650"
+	}
+}
