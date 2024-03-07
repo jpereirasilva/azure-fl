@@ -1,0 +1,124 @@
+{
+	"name": "DimProduct",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "raw_products_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Products"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "edw_dimproduct_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "SinkProduct"
+				}
+			],
+			"transformations": [
+				{
+					"name": "MapProducts"
+				},
+				{
+					"name": "NullFilter"
+				},
+				{
+					"name": "SetAttrsForNew"
+				},
+				{
+					"name": "productKey"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          productCode as string,",
+				"          productName as string,",
+				"          productLine as string,",
+				"          productScale as string,",
+				"          productVendor as string,",
+				"          productDescription as string,",
+				"          quantityInStock as integer,",
+				"          buyPrice as decimal(38,18),",
+				"          MSRP as decimal(38,18)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Products",
+				"productKey select(mapColumn(",
+				"          productKey,",
+				"          productCode,",
+				"          productName,",
+				"          category = productLine,",
+				"          keyStartDate,",
+				"          keyEndDate,",
+				"          keyStatus,",
+				"          lastProcessTime",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> MapProducts",
+				"Products filter(!isNull(productCode)) ~> NullFilter",
+				"NullFilter derive(keyStartDate = currentTimestamp(),",
+				"          keyEndDate = toTimestamp('9999-12-31 23:59:59'),",
+				"          keyStatus = '1',",
+				"          lastProcessTime = currentTimestamp()) ~> SetAttrsForNew",
+				"SetAttrsForNew keyGenerate(output(productKey as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> productKey",
+				"MapProducts sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Prop_0 as string,",
+				"          Prop_1 as string,",
+				"          Prop_2 as string,",
+				"          Prop_3 as string,",
+				"          Prop_4 as string,",
+				"          Prop_5 as string,",
+				"          Prop_6 as string,",
+				"          Prop_7 as string,",
+				"          Prop_8 as string,",
+				"          Prop_9 as string,",
+				"          Prop_10 as string,",
+				"          Prop_11 as string,",
+				"          Prop_12 as string,",
+				"          Prop_13 as string,",
+				"          Prop_14 as string,",
+				"          Prop_15 as string,",
+				"          Prop_16 as string,",
+				"          Prop_17 as string,",
+				"          Prop_18 as string,",
+				"          Prop_19 as string,",
+				"          Prop_20 as string,",
+				"          Prop_21 as string,",
+				"          Prop_22 as string,",
+				"          Prop_23 as string,",
+				"          Prop_24 as string,",
+				"          Prop_25 as string,",
+				"          Prop_26 as string,",
+				"          Prop_27 as string,",
+				"          Prop_28 as string,",
+				"          Prop_29 as string,",
+				"          Prop_30 as string,",
+				"          Prop_31 as string,",
+				"          Prop_32 as string,",
+				"          Prop_33 as string,",
+				"          Prop_34 as string,",
+				"          Prop_35 as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SinkProduct"
+			]
+		}
+	}
+}

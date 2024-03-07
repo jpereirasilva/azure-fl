@@ -1,0 +1,49 @@
+{
+	"name": "ClassicModels",
+	"properties": {
+		"activities": [
+			{
+				"name": "Ingestion",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Ingestion",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Consolidation",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Ingestion",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Consolidation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2024-02-12T11:55:20Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,252 @@
+{
+	"name": "Consolidation",
+	"properties": {
+		"activities": [
+			{
+				"name": "edw_dim_customer",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FctOrders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "edw_dim_customer",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DimCustomer",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DimEmployee",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DimCustomer",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "edw_dim_date",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FctOrders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "edw_dim_date",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DimDate",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DimCustomer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DimDate",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DimEmployee",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DimProduct",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DimEmployee",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "edw_dim_employee",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FctOrders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "edw_dim_employee",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "edw_fact_orders",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "edw_dim_customer",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "edw_dim_date",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "edw_dim_employee",
+						"dependencyConditions": [
+							"Completed"
+						]
+					},
+					{
+						"activity": "edw_dim_product",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "edw_fact_orders",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "FctOrders",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "DimDate",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "FctOrders",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "DimProduct",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "DimProduct",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "edw_dim_product",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "FctOrders",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "edw_dim_product",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"concurrency": 4,
+		"annotations": [],
+		"lastPublishTime": "2024-02-12T15:55:02Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

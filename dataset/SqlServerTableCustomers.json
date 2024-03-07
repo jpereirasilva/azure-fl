@@ -1,0 +1,48 @@
+{
+	"name": "SqlServerTableCustomers",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_OnPremises_Classic",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "SqlServer"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "customerKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "customerName",
+				"type": "varchar"
+			},
+			{
+				"name": "creditLimit",
+				"type": "decimal",
+				"precision": 38,
+				"scale": 4
+			},
+			{
+				"name": "city",
+				"type": "varchar"
+			},
+			{
+				"name": "state",
+				"type": "varchar"
+			},
+			{
+				"name": "country",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "dim_customer"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

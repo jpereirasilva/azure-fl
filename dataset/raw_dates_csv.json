@@ -1,0 +1,93 @@
+{
+	"name": "raw_dates_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "raw"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "DimDates.csv",
+				"folderPath": "dates",
+				"fileSystem": "raw"
+			},
+			"columnDelimiter": ";",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "DateNum",
+				"type": "String"
+			},
+			{
+				"name": "Date",
+				"type": "String"
+			},
+			{
+				"name": "YearMonthNum",
+				"type": "String"
+			},
+			{
+				"name": "Calendar_Quarter",
+				"type": "String"
+			},
+			{
+				"name": "MonthNum",
+				"type": "String"
+			},
+			{
+				"name": "MonthName",
+				"type": "String"
+			},
+			{
+				"name": "MonthShortName",
+				"type": "String"
+			},
+			{
+				"name": "WeekNum",
+				"type": "String"
+			},
+			{
+				"name": "DayNumOfYear",
+				"type": "String"
+			},
+			{
+				"name": "DayNumOfMonth",
+				"type": "String"
+			},
+			{
+				"name": "DayNumOfWeek",
+				"type": "String"
+			},
+			{
+				"name": "DayName",
+				"type": "String"
+			},
+			{
+				"name": "DayShortName",
+				"type": "String"
+			},
+			{
+				"name": "Quarter",
+				"type": "String"
+			},
+			{
+				"name": "YearQuarterNum",
+				"type": "String"
+			},
+			{
+				"name": "DayNumOfQuarter",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

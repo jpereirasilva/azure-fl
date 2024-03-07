@@ -1,0 +1,16 @@
+{
+	"name": "SqlServer_OnPremises_Classic",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=DESKTOP-IVI650F\\SQLEXPRESS;initial catalog=ClassicDW;user id=superadmin",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI2NDY4MTcxYy05MjVlLTQwNDAtYjQ0Ny1jYTY3MmRkMGYyZTEiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

@@ -1,0 +1,87 @@
+{
+	"name": "SqlServerTableDates",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_OnPremises_Classic",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "SqlServer"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "dateKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Date",
+				"type": "date"
+			},
+			{
+				"name": "YearMonthNum",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Calendar_Quarter",
+				"type": "varchar"
+			},
+			{
+				"name": "MonthNum",
+				"type": "varchar"
+			},
+			{
+				"name": "MonthName",
+				"type": "varchar"
+			},
+			{
+				"name": "MonthShortName",
+				"type": "varchar"
+			},
+			{
+				"name": "WeekNum",
+				"type": "varchar"
+			},
+			{
+				"name": "DayNumOfYear",
+				"type": "varchar"
+			},
+			{
+				"name": "DayNumOfMonth",
+				"type": "varchar"
+			},
+			{
+				"name": "DayNumOfWeek",
+				"type": "varchar"
+			},
+			{
+				"name": "DayName",
+				"type": "varchar"
+			},
+			{
+				"name": "DayShortName",
+				"type": "varchar"
+			},
+			{
+				"name": "Quarter",
+				"type": "varchar"
+			},
+			{
+				"name": "YearQuarterNum",
+				"type": "varchar"
+			},
+			{
+				"name": "DayNumOfQuarter",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "dim_date"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

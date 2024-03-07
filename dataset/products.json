@@ -1,0 +1,19 @@
+{
+	"name": "products",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "MySql_ClassicModels",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "classicmodels"
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "`products`"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

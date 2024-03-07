@@ -1,0 +1,73 @@
+{
+	"name": "SqlServerTableOrders",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_OnPremises_Classic",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "SqlServer"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "orderNumber",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "orderDate",
+				"type": "date"
+			},
+			{
+				"name": "requiredDate",
+				"type": "date"
+			},
+			{
+				"name": "shippedDate",
+				"type": "date"
+			},
+			{
+				"name": "status",
+				"type": "varchar"
+			},
+			{
+				"name": "quantityOrdered",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "priceEach",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "productNumber",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "customerNumber",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "employeeNumber",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "date",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "fact_orders"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,160 @@
+{
+	"name": "DimEmployee",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "raw_employees_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Employees"
+				},
+				{
+					"dataset": {
+						"referenceName": "raw_offices_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "Offices"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "edw_dimemployee_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "SinkEmployees"
+				}
+			],
+			"transformations": [
+				{
+					"name": "MapEmployees"
+				},
+				{
+					"name": "LookupEmployees"
+				},
+				{
+					"name": "SelectEmployees"
+				},
+				{
+					"name": "LookupOffices"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          employeeNumber as integer,",
+				"          lastName as string,",
+				"          firstName as string,",
+				"          extension as string,",
+				"          email as string,",
+				"          officeCode as string,",
+				"          reportsTo as integer,",
+				"          jobTitle as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> Employees",
+				"source(output(",
+				"          officeCode as string,",
+				"          city as string,",
+				"          phone as string,",
+				"          addressLine1 as string,",
+				"          addressLine2 as string,",
+				"          state as string,",
+				"          country as string,",
+				"          postalCode as string,",
+				"          territory as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: true,",
+				"     format: 'parquet') ~> Offices",
+				"Employees select(mapColumn(",
+				"          employeeNumber,",
+				"          lastName,",
+				"          firstName,",
+				"          extension,",
+				"          email,",
+				"          officeCode,",
+				"          reportsTo,",
+				"          jobTitle",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> MapEmployees",
+				"MapEmployees, Employees join(MapEmployees@reportsTo == Employees@employeeNumber,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> LookupEmployees",
+				"LookupOffices select(mapColumn(",
+				"          employeeNumber = MapEmployees@employeeNumber,",
+				"          firstName = MapEmployees@firstName,",
+				"          lastName = MapEmployees@lastName,",
+				"          jobTitle = MapEmployees@jobTitle,",
+				"          areaReport = Employees@jobTitle,",
+				"          city,",
+				"          state,",
+				"          country,",
+				"          territory",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectEmployees",
+				"LookupEmployees, Offices join(MapEmployees@officeCode == Offices@officeCode,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> LookupOffices",
+				"SelectEmployees sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Prop_0 as string,",
+				"          Prop_1 as string,",
+				"          Prop_2 as string,",
+				"          Prop_3 as string,",
+				"          Prop_4 as string,",
+				"          Prop_5 as string,",
+				"          Prop_6 as string,",
+				"          Prop_7 as string,",
+				"          Prop_8 as string,",
+				"          Prop_9 as string,",
+				"          Prop_10 as string,",
+				"          Prop_11 as string,",
+				"          Prop_12 as string,",
+				"          Prop_13 as string,",
+				"          Prop_14 as string,",
+				"          Prop_15 as string,",
+				"          Prop_16 as string,",
+				"          Prop_17 as string,",
+				"          Prop_18 as string,",
+				"          Prop_19 as string,",
+				"          Prop_20 as string,",
+				"          Prop_21 as string,",
+				"          Prop_22 as string,",
+				"          Prop_23 as string,",
+				"          Prop_24 as string,",
+				"          Prop_25 as string,",
+				"          Prop_26 as string,",
+				"          Prop_27 as string,",
+				"          Prop_28 as string,",
+				"          Prop_29 as string,",
+				"          Prop_30 as string,",
+				"          Prop_31 as string,",
+				"          Prop_32 as string,",
+				"          Prop_33 as string,",
+				"          Prop_34 as string,",
+				"          Prop_35 as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SinkEmployees"
+			]
+		}
+	}
+}

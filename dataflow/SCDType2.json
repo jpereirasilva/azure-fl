@@ -1,0 +1,90 @@
+{
+	"name": "SCDType2",
+	"properties": {
+		"folder": {
+			"name": "GenericSCD"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "raw_products_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "GenericInput"
+				},
+				{
+					"dataset": {
+						"referenceName": "edw_dimproduct_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "ExistingDimensionTable"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "edw_dimproduct_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "NewAndUpdatedRows"
+				},
+				{
+					"name": "AddHashInput"
+				},
+				{
+					"name": "AddHashExisting"
+				},
+				{
+					"name": "GetMaxSurrogateKey"
+				},
+				{
+					"name": "AddKey"
+				},
+				{
+					"name": "JoinWithMaxSurrogateKey"
+				},
+				{
+					"name": "AddDimensionColumns"
+				},
+				{
+					"name": "FilterForUpdatedValues"
+				},
+				{
+					"name": "UpdateObsolete"
+				},
+				{
+					"name": "DropUnwantedColsInput"
+				},
+				{
+					"name": "UnionAllData"
+				},
+				{
+					"name": "MarkAsUpdate"
+				},
+				{
+					"name": "DropUnwantedColumns"
+				},
+				{
+					"name": "MarkAsInsert"
+				},
+				{
+					"name": "FilterForActive"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"script": "source(output(\n\t\tproductCode as string,\n\t\tproductName as string,\n\t\tproductLine as string,\n\t\tproductScale as string,\n\t\tproductVendor as string,\n\t\tproductDescription as string,\n\t\tquantityInStock as integer,\n\t\tbuyPrice as decimal(38,18),\n\t\tMSRP as decimal(38,18)\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> GenericInput\nsource(output(\n\t\tproductKey as long,\n\t\tproductCode as string,\n\t\tproductName as string,\n\t\tcategory as string,\n\t\tkeyStartDate as timestamp,\n\t\tkeyEndDate as timestamp,\n\t\tkeyStatus as string,\n\t\tlastProcessTime as timestamp\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> ExistingDimensionTable\nAddHashInput, AddHashExisting exists(AddHashInput@id_hash == AddHashExisting@id_hash &&  AddHashInput@columns_hash == AddHashExisting@columns_hash,\n\tnegate:true,\n\tbroadcast: 'auto')~> NewAndUpdatedRows\nfilter1 derive(id_hash = md5(byName('productCode')),\n\t\tcolumns_hash = md5(byNames(['productName','productLine']))) ~> AddHashInput\nFilterForActive derive(id_hash = md5(byName('productCode')),\n\t\tcolumns_hash = md5(byNames(['productName','productLine']))) ~> AddHashExisting\nAddHashExisting aggregate(MaxSurrogateKey = max(toInteger(byName('productKey')))) ~> GetMaxSurrogateKey\nNewAndUpdatedRows keyGenerate(output(Key as long),\n\tstartAt: 1L,\n\tstepValue: 1L) ~> AddKey\nAddKey, GetMaxSurrogateKey join(Key == MaxSurrogateKey || true(),\n\tjoinType:'cross',\n\tmatchType:'exact',\n\tignoreSpaces: false,\n\tbroadcast: 'right')~> JoinWithMaxSurrogateKey\nJoinWithMaxSurrogateKey derive(productKey = Key + MaxSurrogateKey,\n\t\tkeyStatus = '1',\n\t\tkeyStartDate = currentUTC(),\n\t\tkeyEndDate = toTimestamp(toString(null())),\n\t\tlastProcessTime = currentUTC()) ~> AddDimensionColumns\nAddHashExisting, NewAndUpdatedRows exists(AddHashExisting@id_hash == AddHashInput@id_hash,\n\tnegate:false,\n\tbroadcast: 'auto')~> FilterForUpdatedValues\nFilterForUpdatedValues derive(keyStatus = '0',\n\t\tkeyEndDate = currentUTC()) ~> UpdateObsolete\nAddDimensionColumns select(mapColumn(\n\t\teach(match(!in(['id_hash','columns_hash','MaxSurrogateKey'],name)))\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DropUnwantedColsInput\nselect1, DropUnwantedColumns union(byName: true)~> UnionAllData\nUpdateObsolete alterRow(updateIf(true())) ~> MarkAsUpdate\nMarkAsUpdate select(mapColumn(\n\t\teach(match(!in(['id_hash','columns_hash','MaxSurrogateKey'],name)))\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> DropUnwantedColumns\nDropUnwantedColsInput alterRow(insertIf(true())) ~> MarkAsInsert\nExistingDimensionTable filter(toInteger(byName('keyStatus')) == 1) ~> FilterForActive\nGenericInput filter(productCode == 'S23_2323' || productCode == 'S10_1678') ~> filter1\nMarkAsInsert select(mapColumn(\n\t\tproductKey = Key,\n\t\tproductCode,\n\t\tproductName,\n\t\tcategory = productLine,\n\t\tkeyStatus,\n\t\tkeyStartDate,\n\t\tkeyEndDate,\n\t\tlastProcessTime\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> select1\nUnionAllData sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tProp_0 as string,\n\t\tProp_1 as string,\n\t\tProp_2 as string,\n\t\tProp_3 as string,\n\t\tProp_4 as string,\n\t\tProp_5 as string,\n\t\tProp_6 as string,\n\t\tProp_7 as string,\n\t\tProp_8 as string,\n\t\tProp_9 as string,\n\t\tProp_10 as string,\n\t\tProp_11 as string,\n\t\tProp_12 as string,\n\t\tProp_13 as string,\n\t\tProp_14 as string,\n\t\tProp_15 as string,\n\t\tProp_16 as string,\n\t\tProp_17 as string,\n\t\tProp_18 as string,\n\t\tProp_19 as string,\n\t\tProp_20 as string,\n\t\tProp_21 as string,\n\t\tProp_22 as string,\n\t\tProp_23 as string,\n\t\tProp_24 as string,\n\t\tProp_25 as string,\n\t\tProp_26 as string,\n\t\tProp_27 as string,\n\t\tProp_28 as string,\n\t\tProp_29 as string,\n\t\tProp_30 as string,\n\t\tProp_31 as string,\n\t\tProp_32 as string,\n\t\tProp_33 as string,\n\t\tProp_34 as string,\n\t\tProp_35 as string\n\t),\n\tformat: 'parquet',\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}

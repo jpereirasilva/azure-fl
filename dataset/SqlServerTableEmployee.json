@@ -1,0 +1,58 @@
+{
+	"name": "SqlServerTableEmployee",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SqlServer_OnPremises_Classic",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "SqlServer"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "employeeKey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "firstName",
+				"type": "varchar"
+			},
+			{
+				"name": "lastName",
+				"type": "varchar"
+			},
+			{
+				"name": "jobTitle",
+				"type": "varchar"
+			},
+			{
+				"name": "areaReport",
+				"type": "varchar"
+			},
+			{
+				"name": "city",
+				"type": "varchar"
+			},
+			{
+				"name": "state",
+				"type": "varchar"
+			},
+			{
+				"name": "country",
+				"type": "varchar"
+			},
+			{
+				"name": "territory",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "dim_employee"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

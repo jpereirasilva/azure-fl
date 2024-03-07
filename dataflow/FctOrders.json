@@ -1,0 +1,270 @@
+{
+	"name": "FctOrders",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "raw_orders_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "orders"
+				},
+				{
+					"dataset": {
+						"referenceName": "raw_orderdetails_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "orderdetails"
+				},
+				{
+					"dataset": {
+						"referenceName": "edw_dimcustomer_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "customers"
+				},
+				{
+					"dataset": {
+						"referenceName": "edw_dimproduct_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "products"
+				},
+				{
+					"dataset": {
+						"referenceName": "edw_dimemployee_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "employees"
+				},
+				{
+					"dataset": {
+						"referenceName": "edw_dimdate_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "dates"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "edw_fctorders_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "LookupOrderDetails"
+				},
+				{
+					"name": "LookupProducts"
+				},
+				{
+					"name": "LookupCustomers"
+				},
+				{
+					"name": "LookupDates"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "LookupEmployee"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          orderNumber as integer,",
+				"          orderDate as timestamp,",
+				"          requiredDate as timestamp,",
+				"          shippedDate as timestamp,",
+				"          status as string,",
+				"          comments as string,",
+				"          customerNumber as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: true,",
+				"     format: 'parquet') ~> orders",
+				"source(output(",
+				"          orderNumber as integer,",
+				"          productCode as string,",
+				"          quantityOrdered as integer,",
+				"          priceEach as decimal(38,18),",
+				"          orderLineNumber as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: true,",
+				"     format: 'parquet') ~> orderdetails",
+				"source(output(",
+				"          customerNumber as integer,",
+				"          customerName as string,",
+				"          contactLastName as string,",
+				"          contactFirstName as string,",
+				"          creditLimit as decimal(38,18),",
+				"          salesRepEmployeeNumber as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> customers",
+				"source(output(",
+				"          productKey as long,",
+				"          productCode as string,",
+				"          productName as string,",
+				"          category as string,",
+				"          keyStartDate as timestamp,",
+				"          keyEndDate as timestamp,",
+				"          keyStatus as integer,",
+				"          lastProcessTime as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> products",
+				"source(output(",
+				"          employeeNumber as integer,",
+				"          firstName as string,",
+				"          lastName as string,",
+				"          jobTitle as string,",
+				"          areaReport as string,",
+				"          city as string,",
+				"          state as string,",
+				"          country as string,",
+				"          territory as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> employees",
+				"source(output(",
+				"          DateNum as integer,",
+				"          Date as date,",
+				"          YearMonthNum as integer,",
+				"          Calendar_Quarter as string,",
+				"          MonthNum as short,",
+				"          MonthName as string,",
+				"          MonthShortName as string,",
+				"          WeekNum as short,",
+				"          DayNumOfYear as short,",
+				"          DayNumOfMonth as short,",
+				"          DayNumOfWeek as short,",
+				"          DayName as string,",
+				"          DayShortName as string,",
+				"          Quarter as short,",
+				"          YearQuarterNum as short,",
+				"          DayNumOfQuarter as short",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> dates",
+				"derivedColumn1, orderdetails join(orders@orderNumber == orderdetails@orderNumber,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> LookupOrderDetails",
+				"LookupOrderDetails, products join(orderdetails@productCode == products@productCode,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> LookupProducts",
+				"LookupProducts, customers join(orders@customerNumber == customers@customerNumber,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> LookupCustomers",
+				"LookupEmployee, dates join(orderDate == Date,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> LookupDates",
+				"orders derive(orderDate = toDate(orderDate)) ~> derivedColumn1",
+				"derivedColumn2 select(mapColumn(",
+				"          orderNumber = orders@orderNumber,",
+				"          orderDate,",
+				"          requiredDate,",
+				"          shippedDate,",
+				"          status,",
+				"          quantityOrdered,",
+				"          priceEach,",
+				"          productKey,",
+				"          customerKey = customers@customerNumber,",
+				"          employeeKey = employeeNumber,",
+				"          dateKey = DateNum,",
+				"          year",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"LookupCustomers, employees join(salesRepEmployeeNumber == employeeNumber,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> LookupEmployee",
+				"LookupDates derive(year = toInteger(left(toString(orderDate),4))) ~> derivedColumn2",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Prop_0 as string,",
+				"          Prop_1 as string,",
+				"          Prop_2 as string,",
+				"          Prop_3 as string,",
+				"          Prop_4 as string,",
+				"          Prop_5 as string,",
+				"          Prop_6 as string,",
+				"          Prop_7 as string,",
+				"          Prop_8 as string,",
+				"          Prop_9 as string,",
+				"          Prop_10 as string,",
+				"          Prop_11 as string,",
+				"          Prop_12 as string,",
+				"          Prop_13 as string,",
+				"          Prop_14 as string,",
+				"          Prop_15 as string,",
+				"          Prop_16 as string,",
+				"          Prop_17 as string,",
+				"          Prop_18 as string,",
+				"          Prop_19 as string,",
+				"          Prop_20 as string,",
+				"          Prop_21 as string,",
+				"          Prop_22 as string,",
+				"          Prop_23 as string,",
+				"          Prop_24 as string,",
+				"          Prop_25 as string,",
+				"          Prop_26 as string,",
+				"          Prop_27 as string,",
+				"          Prop_28 as string,",
+				"          Prop_29 as string,",
+				"          Prop_30 as string,",
+				"          Prop_31 as string,",
+				"          Prop_32 as string,",
+				"          Prop_33 as string,",
+				"          Prop_34 as string,",
+				"          Prop_35 as string",
+				"     ),",
+				"     format: 'parquet',",
+				"     truncate: true,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('key',",
+				"          0,",
+				"          year",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
