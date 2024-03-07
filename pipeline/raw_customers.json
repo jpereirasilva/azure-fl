@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"source": {
-						"type": "MySqlSource"
+						"type": "PostgreSqlSource"
 					},
 					"sink": {
 						"type": "ParquetSink",
@@ -40,7 +40,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "customers",
+						"referenceName": "customers_pg",
 						"type": "DatasetReference"
 					}
 				],

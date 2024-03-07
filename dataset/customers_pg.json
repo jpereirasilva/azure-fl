@@ -1,0 +1,16 @@
+{
+	"name": "customers_pg",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Local PostgreSql",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "PostgreSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "classicmodels",
+			"table": "customers"
+		}
+	}
+}
